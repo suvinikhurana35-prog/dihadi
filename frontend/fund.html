@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dihadi fund</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1F1; --surface:#FFFFFF; --ink:#142027; --muted:#56666E; --rule:#C9D2D4;
+  --today:#8A979E; --future:#B4235A; --gap:rgba(180,35,90,.13); --mark:#1C6E8C;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1619; --surface:#172126; --ink:#E4EBEC; --muted:#93A4AB; --rule:#2B3A40;
+    --today:#7F8E95; --future:#F06292; --gap:rgba(240,98,146,.17); --mark:#5BB4D1;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1619; --surface:#172126; --ink:#E4EBEC; --muted:#93A4AB; --rule:#2B3A40;
+  --today:#7F8E95; --future:#F06292; --gap:rgba(240,98,146,.17); --mark:#5BB4D1;
+}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Mukta","Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:17px;line-height:1.5;font-variant-numeric:tabular-nums}
+.wrap{max-width:860px;margin:0 auto;padding:20px 20px 56px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 16px;
+  padding-bottom:14px;border-bottom:1px solid var(--rule)}
+.brand{font-weight:800;font-size:1.15rem;margin:0;color:var(--ink);text-decoration:none}
+.brand small{font-weight:500;color:var(--muted);font-size:.95rem;margin-left:8px}
+.top a.price{color:var(--mark);font-weight:500}
+h1{font-size:clamp(1.6rem,1.2rem + 1.6vw,2.4rem);line-height:1.15;letter-spacing:-.015em;margin:28px 0 6px}
+.sub{color:var(--muted);margin:0;max-width:62ch}
+h2{font-size:1.05rem;font-weight:700;margin:34px 0 10px}
+
+.warn{margin:24px 0 0;padding:14px 16px;border-left:4px solid var(--future);background:var(--surface)}
+.warn p{margin:0}
+.warn strong{color:var(--future)}
+.days{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--rule);border-radius:4px;background:var(--surface)}
+.days div{padding:12px 10px;min-width:0}
+.days div + div{border-left:1px solid var(--rule)}
+.days .d{color:var(--muted);font-size:.9rem}
+.days .v{font-size:clamp(1.15rem,.8rem + 2.4vw,1.6rem);font-weight:700;line-height:1.2;white-space:nowrap}
+.days .flag{font-size:.88rem;font-weight:700;color:var(--future)}
+.days .ok{font-size:.88rem;color:var(--muted)}
+
+.money{width:100%;border-collapse:collapse}
+.money td{padding:9px 0;border-bottom:1px solid var(--rule)}
+.money td:last-child{text-align:right;font-weight:500}
+.money tr.total td{font-weight:800;border-bottom:0;border-top:2px solid var(--ink)}
+.health{margin:14px 0 0;padding:12px 14px;background:var(--surface);border-left:3px solid var(--mark)}
+
+.log{width:100%;border-collapse:collapse}
+.log th,.log td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--rule)}
+.log th:first-child,.log td:first-child{text-align:left;padding-left:0}
+.log thead th{font-weight:500;color:var(--muted);font-size:.9rem;border-bottom:1px solid var(--ink)}
+.empty{color:var(--muted)}
+button{font:inherit;font-weight:500;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+  border-radius:3px;padding:8px 14px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-top:16px}
+.actions button.plain{background:transparent;color:var(--ink)}
+.msg{font-size:.9rem;color:var(--muted);margin:0}
+.memberlink{color:var(--mark);font-weight:700}
+:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--rule);color:var(--muted);font-size:.88rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="index.html">Dihadi <small>fund</small></a>
+    <a class="price" href="index.html">Price a new cover</a>
+  </header>
+  <main id="main"><p class="sub" style="margin-top:28px">Loading the fund…</p></main>
+  <footer>Payouts are recorded from weather readings for the fund's location. Illustrative hackathon project, not an insurance product.</footer>
+</div>
+
+<script>
+// Same value as in index.html: the ApiBase output of `sam deploy`.
+const DEPLOYED_API = "";
+// On localhost the page talks to backend/local_server.py automatically.
+const API_URL = DEPLOYED_API || (["localhost","127.0.0.1"].includes(location.hostname) ? location.origin + "/api" : "");
+
+const $=s=>document.querySelector(s);
+const inr=v=>"₹"+Math.round(v).toLocaleString("en-IN");
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const PERIL={
+  heat:{what:"heatwaves", one:"heatwave", warn:"Heat at or above the trigger is forecast. Tell members to avoid outdoor work in the afternoon, carry water, and rest in shade."},
+  flood:{what:"heavy-rain spells", one:"heavy-rain spell", warn:"Heavy rain is forecast. Tell members to move stock off the floor and plan for a closed day."}
+};
+const dayName=(iso,i)=> i===0 ? "Today" : i===1 ? "Tomorrow" :
+  new Date(iso+"T00:00:00").toLocaleDateString("en-IN",{weekday:"long"});
+const niceDate=iso=>new Date(iso+"T00:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+
+const gid=new URLSearchParams(location.search).get("group");
+
+async function api(path, method="GET"){
+  const r=await fetch(API_URL+path,{method});
+  let j={}; try{ j=await r.json(); }catch(e){}
+  if(!r.ok) throw new Error(j.error||("the server returned "+r.status));
+  return j;
+}
+
+function render(v, note){
+  const g=v.group, P=PERIL[g.peril], t=v.totals;
+  const place=g.place.name+(g.place.admin1?", "+g.place.admin1:"");
+  const trig = g.peril==="heat"
+    ? `${g.days} day${g.days>1?"s":""} in a row at or above ${g.t1} °C (severe: ${g.t2} °C)`
+    : `a day with at least ${g.t1} mm of rain (severe: ${g.t2} mm)`;
+  let html=`<h1>${esc(g.name)}</h1>
+    <p class="sub">${g.members.toLocaleString("en-IN")} members in ${esc(place)}. Pays every member ${inr(g.payout1)} for each ${P.one}, meaning ${trig}, or ${inr(g.payout2)} if severe; at most ${g.cap||"any number of"} a year. Priced for ${esc(g.pricedOn.charAt(0).toLowerCase()+g.pricedOn.slice(1))}: ${inr(g.premiumPerMember)} a member a year, of which members pay ${inr(g.memberPays)}.</p>`;
+
+  if(v.forecast){
+    const ahead=v.forecast.filter((f,i)=>i>0 && f.trigger);
+    if(ahead.length) html+=`<div class="warn"><p><strong>${ahead.map(f=>dayName(f.date,v.forecast.indexOf(f))).join(" and ")}: ${ahead.map(f=>f.value.toFixed(1)+" "+v.unit).join(", ")}.</strong> ${P.warn}</p></div>`;
+    html+=`<h2>Next three days</h2><div class="days">`+v.forecast.map((f,i)=>
+      `<div><span class="d">${dayName(f.date,i)}</span><div class="v">${f.value==null?"–":f.value.toFixed(1)+" "+esc(v.unit)}</div>`+
+      (f.trigger?`<span class="flag">Trigger likely</span>`:`<span class="ok">Below trigger</span>`)+`</div>`).join("")+`</div>`;
+  }else{
+    html+=`<h2>Next three days</h2><p class="empty">The forecast couldn't be loaded (${esc(v.forecastError||"unknown error")}). Payout records below are unaffected.</p>`;
+  }
+
+  html+=`<h2>The fund this year</h2>
+    <table class="money"><tbody>
+      <tr><td>From members (${g.members.toLocaleString("en-IN")} × ${inr(g.memberPays)})</td><td>${inr(t.fromMembers)}</td></tr>
+      <tr><td>From the sponsor (${g.members.toLocaleString("en-IN")} × ${inr(g.sponsorPays)})</td><td>${inr(t.fromSponsor)}</td></tr>
+      <tr><td>Paid out (${t.events} ${t.events===1?P.one:P.what})</td><td>−${inr(t.paidOut)}</td></tr>
+      <tr class="total"><td>Balance</td><td>${inr(t.balance)}</td></tr>
+    </tbody></table>`;
+  const short=g.worstYearPayout-t.balance;
+  html+=`<p class="health">${short>0
+    ? `A 1-in-200 year would pay out about ${inr(g.worstYearPayout)}, which is ${inr(short)} more than the fund holds. Cover that gap with reinsurance, a government or NGO backstop, or by building reserves over several years.`
+    : `The balance would cover a 1-in-200 year (about ${inr(g.worstYearPayout)} in payouts).`}</p>`;
+
+  html+=`<h2>Payouts</h2>`;
+  html+= v.events.length
+    ? `<div style="overflow-x:auto"><table class="log"><thead><tr><th scope="col">When</th><th scope="col">Peak</th><th scope="col">Each member</th><th scope="col">All members</th></tr></thead><tbody>`+
+      v.events.map(x=>`<tr><td>${niceDate(x.start)}${x.end!==x.start?" to "+niceDate(x.end):""}${x.tier===2?" <strong>severe</strong>":""}</td><td>${x.peak.toFixed(1)} ${esc(v.unit)}</td><td>${inr(x.payout)}</td><td>${inr(x.payout*g.members)}</td></tr>`).join("")+`</tbody></table></div>`
+    : `<p class="empty">No ${P.what} recorded yet. The weather is checked every morning at 9.</p>`;
+
+  html+=`<div class="actions">
+      <button type="button" id="check">Check the last 14 days now</button>
+      <a class="memberlink" href="member.html?group=${encodeURIComponent(g.id)}">Open the member page</a>
+      <button type="button" class="plain" id="copy">Copy member link</button>
+      <p class="msg" id="msg" role="status">${note?esc(note):""}</p>
+    </div>`;
+  $("#main").innerHTML=html;
+  document.title=g.name+" | Dihadi fund";
+  $("#check").addEventListener("click",check);
+  $("#copy").addEventListener("click",async()=>{
+    const link=new URL("member.html?group="+encodeURIComponent(g.id), location.href).href;
+    try{ await navigator.clipboard.writeText(link); $("#msg").textContent="Member link copied. Send it on WhatsApp; it speaks Hindi."; }
+    catch(e){ $("#msg").textContent=link; }
+  });
+}
+
+async function check(){
+  $("#check").disabled=true; $("#msg").textContent="Checking the weather…";
+  try{
+    const v=await api(`/groups/${encodeURIComponent(gid)}/check`,"POST");
+    const n=v.changed.length;
+    render(v, n ? `${n} payout${n===1?"":"s"} recorded or upgraded.` : "Nothing new in the last 14 days.");
+  }catch(e){
+    $("#check").disabled=false; $("#msg").textContent="Check failed: "+e.message;
+  }
+}
+
+async function load(){
+  if(!API_URL){ $("#main").innerHTML=`<h1>Fund pages need the AWS backend</h1><p class="sub">Set DEPLOYED_API in fund.html to the ApiBase output of <code>sam deploy</code>.</p>`; return; }
+  if(!gid){ $("#main").innerHTML=`<h1>No fund selected</h1><p class="sub">Open the link you got when the fund was created, or <a href="index.html">price a new cover</a>.</p>`; return; }
+  try{ render(await api(`/groups/${encodeURIComponent(gid)}`)); }
+  catch(e){ $("#main").innerHTML=`<h1>This fund couldn't be loaded</h1><p class="sub">${esc(e.message)}. Check the link, or <a href="index.html">price a new cover</a>.</p>`; }
+}
+load();
+</script>
+</body>
+</html>

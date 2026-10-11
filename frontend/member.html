@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EDF1F1">
+<title>Dihadi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1F1; --surface:#FFFFFF; --ink:#142027; --muted:#56666E; --rule:#C9D2D4;
+  --danger:#B4235A; --danger-ink:#FFFFFF; --ok:#1F6B45; --ok-bg:#E1F0E7; --mark:#1C6E8C;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1619; --surface:#172126; --ink:#E4EBEC; --muted:#93A4AB; --rule:#2B3A40;
+    --danger:#C8336D; --danger-ink:#FFFFFF; --ok:#7FD0A2; --ok-bg:#16301F; --mark:#5BB4D1;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1619; --surface:#172126; --ink:#E4EBEC; --muted:#93A4AB; --rule:#2B3A40;
+  --danger:#C8336D; --danger-ink:#FFFFFF; --ok:#7FD0A2; --ok-bg:#16301F; --mark:#5BB4D1;
+}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Mukta","Noto Sans Devanagari","Noto Sans",system-ui,sans-serif;
+  font-size:19px;line-height:1.45;font-variant-numeric:tabular-nums}
+.wrap{max-width:520px;margin:0 auto;padding:14px 16px 40px}
+svg{display:block}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-weight:800;font-size:1.05rem}
+.lang{display:flex}
+.lang button{font:inherit;font-size:1rem;font-weight:700;padding:6px 14px;min-height:44px;
+  border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.lang button + button{margin-left:-2px}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+
+.listen{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;margin:16px 0 18px;
+  min-height:76px;font:inherit;font-size:1.5rem;font-weight:800;color:var(--paper);background:var(--ink);
+  border:0;border-radius:40px;cursor:pointer}
+.listen svg{width:40px;height:40px}
+.listen[aria-pressed="true"]{background:var(--mark)}
+
+.day{display:grid;grid-template-columns:96px 1fr;gap:6px 16px;align-items:center;
+  border-radius:14px;padding:16px;margin-bottom:12px}
+.day.danger{background:var(--danger);color:var(--danger-ink)}
+.day.ok{background:var(--ok-bg);color:var(--ink)}
+.day.unknown{background:var(--surface);color:var(--muted);border:2px dashed var(--rule)}
+.day .icon{width:96px;height:96px;grid-row:span 2}
+.day .when{font-size:1.35rem;font-weight:800;line-height:1.1;display:flex;align-items:center;gap:8px}
+.day .when svg{width:30px;height:30px;flex:none}
+.day .val{font-size:3.2rem;font-weight:800;line-height:1}
+.day .val small{font-size:1.3rem;font-weight:700;margin-left:2px}
+.day .do{grid-column:1 / -1;margin:6px 0 0;font-size:1.1rem;font-weight:500}
+.day.ok .when svg{color:var(--ok)}
+.picts{grid-column:1 / -1;display:flex;gap:10px;margin-top:4px}
+.picts svg{width:52px;height:52px;padding:6px;border-radius:10px;background:rgba(255,255,255,.18)}
+
+.money{background:var(--surface);border-radius:14px;padding:16px;margin-top:6px;border:1px solid var(--rule)}
+.money .amt{font-size:3rem;font-weight:800;line-height:1.05}
+.notes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 10px;align-items:center}
+.notes svg{width:44px;height:26px;color:var(--ok)}
+.notes svg.big{width:58px;height:34px}
+.notes span{font-weight:800;font-size:1.1rem;margin-left:4px}
+.money p{margin:0;font-size:1.1rem}
+.money .per{color:var(--muted);margin-top:4px}
+.where{color:var(--muted);font-size:.95rem;margin:22px 0 0;text-align:center}
+.state{margin-top:40px;text-align:center}
+:focus-visible{outline:3px solid var(--mark);outline-offset:3px}
+@media (prefers-reduced-motion:no-preference){
+  .listen[aria-pressed="true"] svg{animation:pulse 1s ease-in-out infinite alternate}
+  @keyframes pulse{to{transform:scale(1.12)}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="brand">Dihadi</span>
+    <div class="lang" role="group" aria-label="Language / भाषा">
+      <button type="button" data-lang="hi" lang="hi">हिंदी</button>
+      <button type="button" data-lang="en" lang="en">English</button>
+    </div>
+  </header>
+  <main id="main"><p class="state">…</p></main>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-hot" viewBox="0 0 64 64"><circle cx="32" cy="30" r="13" fill="currentColor"/>
+      <g stroke="currentColor" stroke-width="4" stroke-linecap="round"><path d="M32 4v7M32 49v4M8 30h7M49 30h7M14 12l5 5M45 43l5 5M50 12l-5 5M19 43l-5 5"/></g>
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 58q5-4 10 0t10 0 10 0 10 0"/></g></symbol>
+    <symbol id="i-sun" viewBox="0 0 64 64"><circle cx="32" cy="32" r="11" fill="none" stroke="currentColor" stroke-width="4"/>
+      <g stroke="currentColor" stroke-width="4" stroke-linecap="round"><path d="M32 8v6M32 50v6M8 32h6M50 32h6M15 15l4 4M45 45l4 4M49 15l-4 4M19 45l-4 4"/></g></symbol>
+    <symbol id="i-rain" viewBox="0 0 64 64"><path d="M18 38a10 10 0 0 1 1-20 14 14 0 0 1 27 3 9 9 0 0 1 0 17z" fill="currentColor"/>
+      <g stroke="currentColor" stroke-width="4" stroke-linecap="round"><path d="M20 45l-4 9M31 45l-4 9M42 45l-4 9M50 45l-3 6"/></g></symbol>
+    <symbol id="i-cloud" viewBox="0 0 64 64"><path d="M18 46a11 11 0 0 1 1-22 15 15 0 0 1 29 3 10 10 0 0 1 0 19z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></symbol>
+    <symbol id="i-no" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M7 7l18 18" stroke="currentColor" stroke-width="3.5"/></symbol>
+    <symbol id="i-yes" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M9.5 16.5l4.5 4.5 8.5-9" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 9v11l8 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M6 34L34 6" stroke="currentColor" stroke-width="3.5"/></symbol>
+    <symbol id="i-glass" viewBox="0 0 40 40"><path d="M10 6h20l-3 29H13z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M12 17h16l-2 17H14z" fill="currentColor"/></symbol>
+    <symbol id="i-shade" viewBox="0 0 40 40"><circle cx="20" cy="15" r="11" fill="currentColor"/><path d="M20 24v12M12 36h16" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-box" viewBox="0 0 40 40"><path d="M8 14h24v14H8z" fill="none" stroke="currentColor" stroke-width="3"/><path d="M4 36h32M20 6v6M16 9l4-4 4 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="i-road" viewBox="0 0 40 40"><path d="M6 30q7-5 14 0t14 0" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="20" cy="13" r="5" fill="currentColor"/><path d="M6 34L34 6" stroke="currentColor" stroke-width="3.5"/></symbol>
+    <symbol id="i-note" viewBox="0 0 44 26"><rect x="2" y="2" width="40" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="22" cy="13" r="5" fill="currentColor"/></symbol>
+    <symbol id="i-speak" viewBox="0 0 40 40"><path d="M6 15h7l9-8v26l-9-8H6z" fill="currentColor"/><path d="M27 13q5 7 0 14M31 9q9 11 0 22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<script>
+// Same value as in index.html: the ApiBase output of `sam deploy`.
+const DEPLOYED_API = "";
+// On localhost the page talks to backend/local_server.py automatically.
+const API_URL = DEPLOYED_API || (["localhost","127.0.0.1"].includes(location.hostname) ? location.origin + "/api" : "");
+
+const UI = {
+  hi:{ listen:"सुनिए", stop:"रोकिए", unit:{heat:"°", flood:"मिमी"}, rupee:"₹", loading:"…",
+       noApi:"यह पेज चलाने के लिए सर्वर चाहिए।", noFund:"लिंक में फंड नहीं मिला।", fail:"जानकारी नहीं मिली। थोड़ी देर बाद खोलें।" },
+  en:{ listen:"Listen", stop:"Stop", unit:{heat:"°", flood:"mm"}, rupee:"₹", loading:"…",
+       noApi:"This page needs the server.", noFund:"No fund in this link.", fail:"Couldn't load. Try again in a while." }
+};
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const use=(id,cls="")=>`<svg class="${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const params=new URLSearchParams(location.search);
+const gid=params.get("group");
+
+let lang=params.get("lang");
+if(!["hi","en"].includes(lang)){ try{ lang=localStorage.getItem("dihadi-lang"); }catch(e){} }
+if(!["hi","en"].includes(lang)) lang="hi";
+
+let view=null, audio=null;
+
+function setLang(l){
+  lang=l; document.documentElement.lang=l;
+  try{ localStorage.setItem("dihadi-lang",l); }catch(e){}
+  document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.lang===l)));
+  stop(); load();
+}
+
+function picts(peril){
+  return peril==="heat" ? use("clock")+use("glass")+use("shade") : use("box")+use("road");
+}
+
+function render(v){
+  const u=UI[lang];
+  const days=v.days.map(d=>{
+    const val = d.value==null ? "" : `<div class="val">${esc(d.value)}${v.peril==="heat"?"°":`<small>${u.unit[v.peril]}</small>`}</div>`;
+    return `<section class="day ${d.state}" aria-label="${esc(d.label)}">
+      ${use(d.icon,"icon")}
+      <div class="when">${d.state==="danger"?use("no"):d.state==="ok"?use("yes"):""}${esc(d.label)}</div>
+      ${val}
+      ${d.do?`<p class="do">${esc(d.do)}</p>`:`<p class="do">${esc(d.say)}</p>`}
+      ${d.state==="danger"?`<div class="picts">${picts(v.peril)}</div>`:""}
+    </section>`;
+  }).join("");
+  const tiers=v.money.tiers;
+  const notes=tiers.map(t=>use("note", t===2?"big":"")).join("");
+  $("#main").innerHTML=`
+    <button type="button" class="listen" id="listen" aria-pressed="false">${use("speak")}<span>${u.listen}</span></button>
+    ${days}
+    <section class="money" aria-label="${u.rupee}">
+      <div class="amt">${u.rupee}${Math.round(v.money.amount).toLocaleString("en-IN")}</div>
+      ${notes?`<div class="notes" aria-hidden="true">${notes}</div>`:""}
+      <p>${esc(v.money.say)}</p>
+      <p class="per">${esc(v.money.perDaySay)}</p>
+    </section>
+    <p class="where">${esc(v.group.name)}, ${esc(v.group.place)}</p>`;
+  $("#listen").addEventListener("click",toggle);
+  document.title=v.group.name+" | Dihadi";
+}
+
+function message(t){ $("#main").innerHTML=`<p class="state">${esc(t)}</p>`; }
+
+async function load(){
+  const u=UI[lang];
+  if(!API_URL) return message(u.noApi);
+  if(!gid) return message(u.noFund);
+  try{
+    const r=await fetch(`${API_URL}/groups/${encodeURIComponent(gid)}/member?lang=${lang}`);
+    if(!r.ok) throw new Error(r.status);
+    view=await r.json(); render(view);
+  }catch(e){ message(u.fail); }
+}
+
+/* Voice: Amazon Polly first; if that can't play, the phone's own voice. */
+function speaking(on){
+  const b=$("#listen"); if(!b) return;
+  b.setAttribute("aria-pressed",String(on));
+  b.querySelector("span").textContent=on?UI[lang].stop:UI[lang].listen;
+}
+function stop(){
+  if(audio){ audio.pause(); audio=null; }
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+  speaking(false);
+}
+function browserVoice(){
+  if(!("speechSynthesis" in window) || !view) return speaking(false);
+  const u=new SpeechSynthesisUtterance(view.speech);
+  u.lang=lang==="hi"?"hi-IN":"en-IN"; u.rate=0.9;
+  const v=speechSynthesis.getVoices().find(x=>x.lang.replace("_","-").startsWith(u.lang.slice(0,2)));
+  if(v) u.voice=v;
+  u.onend=u.onerror=()=>speaking(false);
+  speechSynthesis.speak(u);
+}
+function toggle(){
+  if($("#listen").getAttribute("aria-pressed")==="true") return stop();
+  speaking(true);
+  const a=new Audio(`${API_URL}/groups/${encodeURIComponent(gid)}/speech?lang=${lang}`);
+  audio=a;
+  let fell=false;
+  const fallback=()=>{ if(fell||audio!==a) return; fell=true; audio=null; browserVoice(); };
+  a.addEventListener("ended",()=>{ if(audio===a) speaking(false); });
+  a.addEventListener("error",fallback);
+  a.play().catch(fallback);
+}
+
+document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+setLang(lang);
+</script>
+</body>
+</html>

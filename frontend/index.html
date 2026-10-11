@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dihadi: heat and rain cover for daily-wage workers</title>
+<meta name="description" content="Price parametric heat and heavy-rain cover for a workers' group from 45 years of real weather and IPCC warming projections, then run it as a fund.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1F1; --surface:#FFFFFF; --ink:#142027; --muted:#56666E; --rule:#C9D2D4;
+  --today:#8A979E; --future:#B4235A; --gap:rgba(180,35,90,.13); --mark:#1C6E8C;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1619; --surface:#172126; --ink:#E4EBEC; --muted:#93A4AB; --rule:#2B3A40;
+    --today:#7F8E95; --future:#F06292; --gap:rgba(240,98,146,.17); --mark:#5BB4D1;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1619; --surface:#172126; --ink:#E4EBEC; --muted:#93A4AB; --rule:#2B3A40;
+  --today:#7F8E95; --future:#F06292; --gap:rgba(240,98,146,.17); --mark:#5BB4D1;
+}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Mukta","Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:17px;line-height:1.5;font-variant-numeric:tabular-nums}
+.wrap{max-width:1160px;margin:0 auto;padding:20px 20px 56px}
+a{color:var(--mark)}
+
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 16px;
+  padding-bottom:14px;border-bottom:1px solid var(--rule)}
+.brand{font-weight:800;font-size:1.15rem;letter-spacing:-.01em;margin:0}
+.brand small{font-weight:500;color:var(--muted);font-size:.95rem;margin-left:8px;letter-spacing:0}
+.engine{color:var(--muted);font-size:.9rem}
+
+.lede{font-size:clamp(1.45rem,1.05rem + 1.7vw,2.35rem);line-height:1.22;font-weight:700;
+  letter-spacing:-.015em;max-width:32ch;margin:28px 0 10px}
+.lede .t{color:var(--muted)} .lede .f{color:var(--future)}
+.sub{color:var(--muted);max-width:70ch;margin:0}
+.sub strong{color:var(--ink)}
+
+.layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:44px;margin-top:32px;align-items:start}
+.layout > *{min-width:0}
+@media (max-width:880px){.layout{grid-template-columns:1fr;gap:32px}}
+
+.controls h2,.panel h2{font-size:1rem;font-weight:700;margin:26px 0 10px}
+.controls h2:first-child{margin-top:0}
+.field{margin:0 0 14px}
+.field label,.field .lab{display:block;font-weight:500;font-size:.95rem}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+output{font-weight:700}
+select,input[type=number],input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surface);
+  border:1px solid var(--rule);border-radius:3px;padding:7px 9px;margin-top:4px}
+input:disabled,button:disabled{opacity:.5;cursor:default}
+input[type=range]{width:100%;accent-color:var(--future);margin:6px 0 0}
+fieldset{border:0;padding:0;margin:0 0 16px;min-width:0}
+legend{font-weight:500;font-size:.95rem;padding:0;margin-bottom:6px}
+.seg{display:grid;grid-template-columns:repeat(var(--n,3),1fr)}
+.seg label{position:relative;display:block}
+.seg label + label{margin-left:-1px}
+.seg input{position:absolute;opacity:0;width:1px;height:1px}
+.seg span{display:block;text-align:center;border:1px solid var(--rule);background:var(--surface);
+  padding:6px 4px 5px;font-size:.92rem;line-height:1.2;cursor:pointer;height:100%}
+.seg span small{display:block;color:var(--muted);font-size:.78rem}
+.seg input:checked + span{background:var(--ink);color:var(--paper);border-color:var(--ink);position:relative;z-index:1}
+.seg input:checked + span small{color:inherit;opacity:.75}
+.seg input:focus-visible + span{outline:2px solid var(--mark);outline-offset:2px;position:relative;z-index:2}
+details{border-top:1px solid var(--rule);padding-top:12px;margin-top:8px}
+summary{cursor:pointer;font-weight:500}
+details[open] summary{margin-bottom:12px}
+.hint{color:var(--muted);font-size:.85rem;margin:3px 0 0;line-height:1.35}
+.hint button{font-size:.85rem;padding:0;border:0;background:none;color:var(--mark);text-decoration:underline;margin:0;cursor:pointer}
+button{font:inherit;font-weight:500;color:var(--ink);background:transparent;border:1px solid var(--ink);
+  border-radius:3px;padding:7px 12px;cursor:pointer}
+button.primary{background:var(--ink);color:var(--paper);width:100%;margin-top:8px}
+:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+.placebox{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:12px;margin:0 0 18px}
+.msg{font-size:.88rem;margin:8px 0 0;line-height:1.35}
+.msg.err{color:var(--future)}
+
+.chartbox{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:14px 12px 8px;margin-bottom:20px}
+.chartbox h2{margin:2px 4px 2px}
+.chartbox .hint{margin:0 4px 6px}
+.chart svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:.9rem;color:var(--muted);margin:6px 4px 4px}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+.legend .sw{width:12px;height:12px;border:0;vertical-align:-1px}
+
+.fit{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);margin:10px 4px 6px}
+.fit div{padding:10px 8px 4px 0}
+.fit .k{color:var(--muted);font-size:.85rem;display:block}
+.fit .v{font-weight:700;font-size:1.15rem}
+.fit .v small{font-weight:500;color:var(--muted);font-size:.85rem}
+@media (max-width:520px){.fit{grid-template-columns:1fr 1fr}}
+
+.tablewrap{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;min-width:440px}
+th,td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--rule)}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+thead th{font-weight:500;color:var(--muted);font-size:.9rem;border-bottom:1px solid var(--ink)}
+td .why{display:block;color:var(--muted);font-size:.82rem;line-height:1.3}
+tr.total td{font-weight:800;border-top:2px solid var(--ink)}
+tr.split td{color:var(--ink)}
+tr.split td:first-child{padding-left:14px}
+td.up{color:var(--future)}
+.pool{margin:18px 0 0;padding:14px 16px;border-left:3px solid var(--mark);background:var(--surface)}
+.pool p{margin:0}
+.pool p + p{margin-top:8px}
+.fundnew{margin-top:28px;padding-top:18px;border-top:1px solid var(--rule)}
+.inline{display:flex;gap:8px;align-items:stretch;margin-top:10px;max-width:560px}
+.inline input{flex:1;min-width:0;margin-top:0}
+.inline button{white-space:nowrap}
+.method{margin-top:30px;max-width:72ch}
+.method p{margin:0 0 12px}
+.method ol{padding-left:20px;margin:0}
+.method li{margin-bottom:6px;color:var(--muted);font-size:.92rem}
+.empty{color:var(--muted);padding:30px 4px;text-align:center}
+footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--rule);color:var(--muted);font-size:.88rem}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="brand">Dihadi <small>heat and rain cover for daily-wage workers</small></p>
+    <span class="engine" id="engine" aria-live="polite"></span>
+  </header>
+
+  <h1 class="lede" id="lede">Price heat cover for your group from 45 years of your own city's weather.</h1>
+  <p class="sub" id="sub">Type a city to start. Every number here comes from public records: ERA5 daily weather from 1980, the HadCRUT5 global temperature record, and the IPCC's warming projections.</p>
+
+  <div class="layout">
+    <form class="controls" id="controls" aria-label="Cover terms" onsubmit="return false">
+      <div class="placebox">
+        <div class="field">
+          <label for="city">City</label>
+          <input type="text" id="city" placeholder="e.g. Ahmedabad" autocomplete="address-level2">
+        </div>
+        <fieldset style="margin-bottom:6px">
+          <legend>Cover against</legend>
+          <div class="seg" style="--n:2">
+            <label><input type="radio" name="peril" value="heat" checked><span>Heatwaves</span></label>
+            <label><input type="radio" name="peril" value="flood"><span>Heavy rain</span></label>
+          </div>
+        </fieldset>
+        <button type="button" class="primary" id="load">Load 45 years of weather</button>
+        <p class="msg" id="load-msg" role="status"></p>
+      </div>
+
+      <h2>When it pays</h2>
+      <div class="pair">
+        <div class="field">
+          <label for="t1" id="t1-label">Trigger (°C)</label>
+          <input type="number" id="t1" step="0.1">
+        </div>
+        <div class="field">
+          <label for="t2" id="t2-label">Severe (°C)</label>
+          <input type="number" id="t2" step="0.1">
+        </div>
+      </div>
+      <div class="field" id="days-field">
+        <label for="days">Days in a row needed</label>
+        <select id="days"><option value="1">1 day</option><option value="2" selected>2 days</option><option value="3">3 days</option></select>
+      </div>
+      <p class="hint" id="trigger-hint"></p>
+
+      <h2>What it pays each member</h2>
+      <div class="pair">
+        <div class="field">
+          <label for="payout1">Per event (₹)</label>
+          <input type="number" id="payout1" min="1" step="50" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="payout2">Per severe event (₹)</label>
+          <input type="number" id="payout2" min="1" step="50" inputmode="numeric">
+        </div>
+      </div>
+      <div class="field">
+        <label for="cap">Most payouts in a year</label>
+        <select id="cap"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option><option value="0">No limit</option></select>
+      </div>
+
+      <h2>Which future</h2>
+      <fieldset>
+        <legend>Emissions path</legend>
+        <div class="seg">
+          <label><input type="radio" name="scenario" value="ssp126"><span>Low<small>SSP1-2.6</small></span></label>
+          <label><input type="radio" name="scenario" value="ssp245" checked><span>Middle<small>SSP2-4.5</small></span></label>
+          <label><input type="radio" name="scenario" value="ssp585"><span>High<small>SSP5-8.5</small></span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Years</legend>
+        <div class="seg">
+          <label><input type="radio" name="horizon" value="near"><span>2021–40</span></label>
+          <label><input type="radio" name="horizon" value="mid" checked><span>2041–60</span></label>
+          <label><input type="radio" name="horizon" value="late"><span>2081–2100</span></label>
+        </div>
+      </fieldset>
+
+      <h2>Who pays</h2>
+      <div class="field">
+        <label for="members">Members in the group</label>
+        <input type="number" id="members" min="1" step="50" value="500" inputmode="numeric">
+      </div>
+      <div class="field">
+        <div class="row"><label for="memberShare">Members pay</label><output id="share-out"></output></div>
+        <input type="range" id="memberShare" min="0" max="100" step="5" value="40">
+        <p class="hint">The rest comes from a sponsor: an NGO, a company's CSR budget, the contractor, or the state construction workers' welfare board.</p>
+      </div>
+
+      <details>
+        <summary>Pricing assumptions</summary>
+        <div class="field">
+          <label for="costOfCapital">Cost of capital (%)</label>
+          <input type="number" id="costOfCapital" min="0" max="50" step="0.5" value="6">
+          <p class="hint">6% is the rate Solvency II uses for its risk margin.</p>
+        </div>
+        <div class="field">
+          <label for="expenseRatio">Running costs (% of premium)</label>
+          <input type="number" id="expenseRatio" min="0" max="60" step="1" value="20">
+        </div>
+      </details>
+    </form>
+
+    <main class="panel" id="panel">
+      <p class="empty" id="empty">Load a city's weather to see what the cover would have paid and what it should cost.</p>
+      <div id="results" hidden>
+        <section class="chartbox" aria-labelledby="hist-title">
+          <h2 id="hist-title"></h2>
+          <p class="hint">Bars: what this cover would have paid one member each year. Line: what the model expects at that year's level of global warming.</p>
+          <div class="chart" id="histchart" role="img" aria-label="Payout per member each year, with the model's expected payout"></div>
+          <div class="legend">
+            <span><i class="sw" style="background:var(--today)"></i>Paid, one tier</span>
+            <span><i class="sw" style="background:var(--future)"></i>Year with a severe event</span>
+            <span><i style="border-color:var(--mark)"></i>Model</span>
+          </div>
+        </section>
+
+        <section class="chartbox" aria-labelledby="fit-title">
+          <h2 id="fit-title">How warming changes it here</h2>
+          <p class="hint" id="fit-text"></p>
+          <div class="fit" id="fit"></div>
+        </section>
+
+        <section class="chartbox" aria-labelledby="aep-title">
+          <h2 id="aep-title">How bad a bad year gets</h2>
+          <p class="hint">Payout to one member in a year that comes around once every so many years.</p>
+          <div class="chart" id="aepchart" role="img" aria-label="Payout by return period, today and in the warmer scenario"></div>
+          <div class="legend">
+            <span><i style="border-color:var(--today)"></i>Today</span>
+            <span><i style="border-color:var(--future)"></i><span id="legend-future"></span></span>
+          </div>
+        </section>
+
+        <h2>Fair price, per member per year</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th scope="col"></th><th scope="col">Today</th><th scope="col" id="th-future"></th><th scope="col">Change</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div class="pool" id="pool"></div>
+
+        <section class="fundnew" aria-labelledby="fund-title">
+          <h2 id="fund-title">Run this as a fund</h2>
+          <p class="sub" id="fund-intro"></p>
+          <div class="inline">
+            <input type="text" id="groupName" placeholder="Group name, e.g. Naroda site workers" aria-label="Group name" maxlength="80">
+            <button type="button" id="createFund">Create fund</button>
+          </div>
+          <p class="msg" id="fund-msg" role="status"></p>
+        </section>
+      </div>
+
+      <section class="method" aria-labelledby="method-title">
+        <h2 id="method-title">How this is worked out</h2>
+        <p>The cover works like SEWA's heat insurance for women workers in Ahmedabad: a fixed payout per heatwave once the temperature stays above the trigger for two days in a row, a larger one if it gets more severe, and a limit on payouts a year. Heavy rain uses the India Meteorological Department's categories, 64.5 mm and 115.6 mm in a day.</p>
+        <p>For the chosen city, Dihadi reads every day from 1980 to 2024 and counts the events that would have paid. It then fits a Poisson regression of events per year against that year's global temperature. Forty-five years is a short record, so the fitted effect of warming is credibility-weighted towards a prior from many Indian cities (or, before that is built, from the IPCC), in proportion to how precise the city's own estimate is.</p>
+        <p>The yearly payout is a compound distribution (a Poisson number of events, each one severe or not, capped) and is computed exactly, not simulated. The premium is the expected payout, plus a 6% charge on the money held back to survive a 1-in-200 year (the Solvency II standard), plus running costs. The range shown reflects the uncertainty in how strongly warming affects this city. Everyone in one city has the same bad year, so that reserve can't be pooled away inside the group: it has to be held, sponsored or reinsured.</p>
+        <ol>
+          <li>Daily weather: ERA5 reanalysis, ECMWF, via the <a href="https://open-meteo.com/en/docs/historical-weather-api">Open-Meteo historical API</a> (about a 25 km grid).</li>
+          <li>Global temperature: <a href="https://www.metoffice.gov.uk/hadobs/hadcrut5/">HadCRUT5</a>, Met Office Hadley Centre and University of East Anglia, re-based to 1850–1900. Average for 2015–2024: 1.26 °C.</li>
+          <li>Future warming: <a href="https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/">IPCC AR6 WG1 Summary for Policymakers</a>, Table SPM.1 and Figure SPM.6.</li>
+          <li>Product design: SEWA, Climate Resilience for All, ICICI Lombard and Swiss Re heat cover, <a href="https://www.kpbs.org/news/health/2025/07/16/on-super-hot-days-this-insurance-plan-pays-out-cash-for-lost-wages">reported by NPR in July 2025</a>.</li>
+          <li>Cost of capital: <a href="https://eur-lex.europa.eu/eli/reg_del/2015/35/oj">Solvency II Delegated Regulation (EU) 2015/35</a>, Article 39.</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+
+  <footer>A hackathon project. Prices are a fair technical price for comparison, not a quote for insurance.</footer>
+</div>
+
+<script>
+// Set this to the ApiBase output of `sam deploy`, e.g. "https://abc123.execute-api.ap-south-1.amazonaws.com".
+const DEPLOYED_API = "";
+// On localhost the page talks to backend/local_server.py automatically.
+const API_URL = DEPLOYED_API || (["localhost","127.0.0.1"].includes(location.hostname) ? location.origin + "/api" : "");
+
+const PERILS = {
+  heat:  { t1:43.6, t2:44.1, days:2, payout1:750, payout2:1250, unit:"°C", step:0.1,
+           event:"heatwave", events:"heatwaves", label:"Trigger (°C)", label2:"Severe (°C)",
+           trig:(t,d)=>`${d} day${d>1?"s":""} in a row at or above ${t} °C` },
+  flood: { t1:64.5, t2:115.6, days:1, payout1:500, payout2:1000, unit:"mm", step:0.5,
+           event:"heavy-rain spell", events:"heavy-rain spells", label:"Trigger (mm a day)", label2:"Severe (mm a day)",
+           trig:(t)=>`a day with at least ${t} mm of rain` }
+};
+
+/* ---------- engine: mirrors backend/src/engine.py ---------- */
+const WARMING = {
+  ssp126:{near:1.5, mid:1.7, late:1.8},
+  ssp245:{near:1.5, mid:2.0, late:2.7},
+  ssp585:{near:1.6, mid:2.4, late:4.4}
+};
+const TODAY_WARMING = 1.26;
+const RETURN_PERIODS = [2,5,10,20,50,100,200];
+
+function countPmf(lam, cap){
+  let p=Math.exp(-lam); const out=[p]; let total=p, n=0;
+  const limit = cap>0 ? cap : 1e6;
+  while(n+1<limit){
+    n++; p*=lam/n; out.push(p); total+=p;
+    if(cap===0 && 1-total<1e-13 && n>lam) return out;
+  }
+  if(cap>0) out.push(Math.max(0,1-total));
+  return out;
+}
+function comb(m,j){ let c=1; for(let i=1;i<=j;i++) c=c*(m-j+i)/i; return c; }
+function payoutDist(lam1, p2, a1, a2, cap){
+  const probs=new Map();
+  countPmf(lam1,cap).forEach((pm,m)=>{
+    if(pm<=0) return;
+    for(let j=0;j<=m;j++){
+      const pj=pm*comb(m,j)*Math.pow(p2,j)*Math.pow(1-p2,m-j);
+      if(pj>0){
+        const amt=Math.round(((m-j)*a1+j*a2)*1e6)/1e6;
+        probs.set(amt,(probs.get(amt)||0)+pj);
+      }
+    }
+  });
+  return [...probs.entries()].sort((a,b)=>a[0]-b[0]);
+}
+function quantile(dist,q){ let c=0; for(const [a,p] of dist){ c+=p; if(c>=q-1e-12) return a; } return dist[dist.length-1][0]; }
+function expectedEvents(lam1,cap){ return countPmf(lam1,cap).reduce((s,p,m)=>s+m*p,0); }
+function summarise(dist, cocRate, expense, share){
+  const mean=dist.reduce((s,[a,p])=>s+a*p,0);
+  const sd=Math.sqrt(Math.max(0,dist.reduce((s,[a,p])=>s+(a-mean)**2*p,0)));
+  const var995=quantile(dist,0.995), q99=quantile(dist,0.99);
+  const tail=dist.filter(([a])=>a>=q99);
+  const tvar=tail.reduce((s,[a,p])=>s+a*p,0)/tail.reduce((s,[,p])=>s+p,0);
+  const capital=Math.max(var995-mean,0), coc=cocRate*capital, gross=(mean+coc)/(1-expense);
+  const pZero=dist.filter(([a])=>a===0).reduce((s,[,p])=>s+p,0);
+  return { aal:mean, sd, var995, tvar99:tvar, pAny:1-pZero,
+           aep:RETURN_PERIODS.map(rp=>({rp, loss:quantile(dist,1-1/rp)})),
+           capital, coc, expenses:gross-mean-coc, gross, memberPays:gross*share, sponsorPays:gross*(1-share) };
+}
+function book(p, dT, b1, b2){
+  const lam1=p.lam1*Math.exp(b1*dT);
+  const lam2=Math.min(p.lam2*Math.exp(b2*dT), lam1);
+  const p2=lam1>0? lam2/lam1 : 0;
+  const out=summarise(payoutDist(lam1,p2,p.payout1,p.payout2,p.cap), p.costOfCapital, p.expenseRatio, p.memberShare);
+  Object.assign(out,{events:lam1, higherTierShare:p2, paidEvents:expectedEvents(lam1,p.cap)});
+  out.pool={premium:out.gross*p.members, capital:out.capital*p.members, worstYear:out.var995*p.members};
+  return out;
+}
+function simulate(p){
+  const dT=WARMING[p.scenario][p.horizon]-TODAY_WARMING, z=1.96;
+  const low=book(p,dT,p.b1-z*p.se1,p.b2-z*p.se2), high=book(p,dT,p.b1+z*p.se1,p.b2+z*p.se2);
+  const [lo,hi]=[low.gross,high.gross].sort((a,b)=>a-b);
+  return { deltaT:dT, today:book(p,0,p.b1,p.b2), scenario:book(p,dT,p.b1,p.b2), scenarioRange:{low:lo, high:hi} };
+}
+
+/* ---------- page ---------- */
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const inr=v=>"₹"+Math.round(v).toLocaleString("en-IN");
+const one=v=>(Math.round(v*10)/10).toFixed(1);
+const pct=(a,b)=> a>0 ? Math.round((b/a-1)*100) : 0;
+const signed=n=>(n>0?"+":n<0?"−":"")+Math.abs(n)+"%";
+const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const SCEN={ssp126:"low emissions", ssp245:"middle emissions", ssp585:"high emissions"};
+const HOR={near:"2021–40", mid:"2041–60", late:"2081–2100"};
+const peril=()=>document.querySelector("input[name=peril]:checked").value;
+
+let cal=null, last=null;
+
+function setPeril(key, keepTerms){
+  const d=PERILS[key];
+  $("#t1-label").textContent=d.label; $("#t2-label").textContent=d.label2;
+  $("#t1").step=$("#t2").step=d.step;
+  if(!keepTerms){
+    $("#t1").value=d.t1; $("#t2").value=d.t2; $("#days").value=d.days;
+    $("#payout1").value=d.payout1; $("#payout2").value=d.payout2;
+  }
+  $("#days-field").hidden = key!=="heat";
+}
+
+function terms(){
+  const num=id=>parseFloat($("#"+id).value);
+  return {
+    peril:peril(), t1:num("t1"), t2:num("t2"), days:parseInt($("#days").value,10),
+    payout1:Math.max(1,num("payout1")||1), payout2:Math.max(1,num("payout2")||1),
+    cap:parseInt($("#cap").value,10),
+    members:Math.max(1,Math.round(num("members")||1)),
+    memberShare:num("memberShare")/100,
+    costOfCapital:(num("costOfCapital")||0)/100, expenseRatio:Math.min(.6,(num("expenseRatio")||0)/100),
+    scenario:document.querySelector("input[name=scenario]:checked").value,
+    horizon:document.querySelector("input[name=horizon]:checked").value
+  };
+}
+
+async function api(path, body){
+  const r=await fetch(API_URL+path, body===undefined ? {} :
+    {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(body)});
+  let j={}; try{ j=await r.json(); }catch(e){}
+  if(!r.ok) throw new Error(j.error || ("the server returned "+r.status));
+  return j;
+}
+
+/* Calibration: needs the server (weather + climate fit run on Lambda). */
+let calTimer=null, calId=0;
+async function loadWeather(){
+  const msg=$("#load-msg"), city=$("#city").value.trim();
+  if(!API_URL){ msg.className="msg err"; msg.textContent="Weather loads through the Dihadi server. Run backend/local_server.py, or deploy and set DEPLOYED_API."; return; }
+  if(!city){ msg.className="msg err"; msg.textContent="Type a city first."; $("#city").focus(); return; }
+  const t=terms();
+  if(!(t.t2>=t.t1)){ msg.className="msg err"; msg.textContent="The severe level has to be at or above the trigger."; return; }
+  const id=++calId;
+  $("#load").disabled=true; msg.className="msg"; msg.textContent=cal?"Recounting events…":"Reading 45 years of daily weather…";
+  try{
+    const c=await api("/calibrate",{city, peril:t.peril, t1:t.t1, t2:t.t2, days:t.days});
+    if(id!==calId) return;
+    cal=c;
+    msg.textContent=`${c.place.name}${c.place.admin1?", "+c.place.admin1:""}. ${c.source}.`;
+    $("#empty").hidden=true; $("#results").hidden=false;
+    price();
+  }catch(e){
+    if(id!==calId) return;
+    msg.className="msg err"; msg.textContent="Couldn't load the weather: "+e.message;
+  }finally{ if(id===calId) $("#load").disabled=false; }
+}
+function scheduleCalibrate(){ if(!cal) return; clearTimeout(calTimer); calTimer=setTimeout(loadWeather,500); }
+
+/* Pricing: exact, so it runs instantly in the browser; on AWS it also runs on Lambda. */
+let priceId=0;
+async function price(){
+  if(!cal) return;
+  const t=terms(), id=++priceId;
+  const p={...t, lam1:cal.lam1, lam2:cal.lam2, b1:cal.b1, b2:cal.b2, se1:cal.se1, se2:cal.se2};
+  let res, engine;
+  const t0=performance.now();
+  if(API_URL){
+    try{ res=await api("/simulate",p); engine=DEPLOYED_API?"Priced on AWS Lambda":"Priced on the local server"; }
+    catch(e){ res=simulate(p); engine="Server unreachable, priced in your browser"; }
+  }else{ res=simulate(p); engine="Priced in your browser"; }
+  if(id!==priceId) return;
+  $("#engine").textContent=`${engine} in ${Math.max(1,Math.round(performance.now()-t0))} ms`;
+  last={res,p};
+  render(res,p);
+}
+
+function burn(seq,p){
+  const s=p.cap>0? seq.slice(0,p.cap) : seq;
+  let a=0; for(const c of s) a+= c==="2"? p.payout2 : p.payout1;
+  return a;
+}
+function expectedAt(w,p){
+  const l1=p.lam1*Math.exp(p.b1*(w-TODAY_WARMING));
+  const l2=Math.min(p.lam2*Math.exp(p.b2*(w-TODAY_WARMING)),l1);
+  const p2=l1>0? l2/l1 : 0;
+  return expectedEvents(l1,p.cap)*(p.payout1*(1-p2)+p.payout2*p2);
+}
+
+function render(res,p){
+  const d=PERILS[p.peril], T=res.today, S=res.scenario, R=res.scenarioRange;
+  const scen=`${SCEN[p.scenario]}, ${HOR[p.horizon]}`, warm=WARMING[p.scenario][p.horizon];
+  const recent=cal.years.filter(y=>y.year>=2015 && y.year<=2024);
+  const recentRate=recent.reduce((s,y)=>s+y.seq.length,0)/Math.max(1,recent.length);
+
+  $("#lede").innerHTML=`In ${esc(cal.place.name)} this cover would have paid out <span class="t">${one(recentRate)} times a year</span> over 2015–2024. At ${warm.toFixed(1)} °C of global warming, expect <span class="f">${one(S.events)}</span>.`;
+  $("#sub").innerHTML=`Fair premium under ${scen}: <strong>${inr(S.gross)}</strong> a member a year (likely ${inr(R.low)}–${inr(R.high)}), against ${inr(T.gross)} today. Members pay ${inr(S.memberPays)}; the sponsor pays ${inr(S.sponsorPays)}.`;
+  $("#th-future").textContent=cap1(scen);
+  $("#legend-future").textContent=cap1(scen);
+
+  // trigger hint from the trigger table
+  const hint=$("#trigger-hint"), sug=cal.suggest||[];
+  // Suggest a trigger only when this one would pay very rarely or very often.
+  const target=(recentRate<0.5 || recentRate>3) ? sug.filter(s=>s.perYear>0).sort((a,b)=>Math.abs(a.perYear-1.5)-Math.abs(b.perYear-1.5))[0] : null;
+  hint.innerHTML=`Pays on ${d.trig(cal.t1,cal.days)}. Over 2015–2024 that happened ${one(recentRate)} times a year here.`+
+    (target && Math.abs(target.t-cal.t1)>0.05 ? ` That is ${recentRate<0.5?"rarely":"very often"} for this city's weather grid. <button type="button" id="suggest">Use ${target.t} ${d.unit}</button> to pay about ${one(target.perYear)} times a year.` : "");
+  const sb=$("#suggest"); if(sb) sb.addEventListener("click",()=>{ $("#t1").value=target.t; if(parseFloat($("#t2").value)<target.t) $("#t2").value=+(target.t+(p.peril==="heat"?0.5:50)).toFixed(1); loadWeather(); });
+
+  $("#hist-title").textContent=`What this cover would have paid in ${cal.place.name}, ${cal.years[0].year}–${cal.years[cal.years.length-1].year}`;
+  drawHistory(p);
+
+  // climate fit
+  const f=cal.fit1, x=b=>"×"+Math.exp(b).toFixed(2);
+  const lo=cal.b1-1.96*cal.se1, hi=cal.b1+1.96*cal.se1;
+  $("#fit-text").textContent=`Each extra 1 °C of global warming multiplies ${d.events} here by ${x(cal.b1)} (likely ${x(lo)} to ${x(hi)}). `+
+    (f.fit ? `${Math.round(f.Z*100)}% of that comes from ${cal.place.name}'s own 45 years; the rest from ${f.prior.source}.` :
+             `There were too few events here to fit, so it comes from ${f.prior.source}.`);
+  $("#fit").innerHTML=
+    `<div><span class="k">This city's data</span><span class="v">${f.fit?x(f.fit.b):"–"} <small>${f.fit?"± "+f.fit.seB.toFixed(2):"too few events"}</small></span></div>`+
+    `<div><span class="k">Prior</span><span class="v">${x(f.prior.b)} <small>spread ${f.prior.tau.toFixed(2)}</small></span></div>`+
+    `<div><span class="k">Used (credibility ${Math.round(f.Z*100)}%)</span><span class="v">${x(cal.b1)}</span></div>`;
+
+  drawAep(res);
+
+  const rows=[
+    [`${cap1(d.events)} a year`,"Expected, before the yearly limit", T.events, S.events, "n"],
+    ["Chance of at least one payout","In any one year", T.pAny, S.pAny, "p"],
+    ["Expected payout","The fair price before costs", T.aal, S.aal],
+    ["Payout in a 1-in-200 year","The bad year the fund must survive", T.var995, S.var995],
+    ["Money held back for that year","1-in-200 payout minus expected payout", T.capital, S.capital],
+    [`Cost of holding it (${+(p.costOfCapital*100).toFixed(1)}%)`,"", T.coc, S.coc],
+    [`Running costs (${Math.round(p.expenseRatio*100)}% of premium)`,"", T.expenses, S.expenses]
+  ];
+  const fmt=(v,k)=> k==="n"? one(v) : k==="p"? Math.round(v*100)+"%" : inr(v);
+  let html=rows.map(([a,why,t,s,k])=>{
+    const c=k==="p"? Math.round((s-t)*100) : pct(t,s);
+    const cs=k==="p"? (c>0?"+":c<0?"−":"")+Math.abs(c)+" pts" : signed(c);
+    return `<tr><td>${a}${why?`<span class="why">${why}</span>`:""}</td><td>${fmt(t,k)}</td><td>${fmt(s,k)}</td><td class="${c>0?"up":""}">${cs}</td></tr>`;
+  }).join("");
+  const ch=pct(T.gross,S.gross);
+  html+=`<tr class="total"><td>Premium per member</td><td>${inr(T.gross)}</td><td>${inr(S.gross)}</td><td class="${ch>0?"up":""}">${signed(ch)}</td></tr>`;
+  html+=`<tr class="split"><td>Member pays (${Math.round(p.memberShare*100)}%)</td><td>${inr(T.memberPays)}</td><td>${inr(S.memberPays)}</td><td></td></tr>`;
+  html+=`<tr class="split"><td>Sponsor pays (${100-Math.round(p.memberShare*100)}%)</td><td>${inr(T.sponsorPays)}</td><td>${inr(S.sponsorPays)}</td><td></td></tr>`;
+  $("#tbody").innerHTML=html;
+
+  $("#pool").innerHTML=`<p>For ${p.members.toLocaleString("en-IN")} members the fund collects <strong>${inr(S.pool.premium)}</strong> a year: ${inr(S.memberPays*p.members)} from members and ${inr(S.sponsorPays*p.members)} from the sponsor.</p>`+
+    `<p>In a 1-in-200 year it would pay out ${inr(S.pool.worstYear)}. Everyone here has the same bad year, so the group needs <strong>${inr(S.pool.capital)}</strong> beyond the expected payouts: held as a reserve, guaranteed by the sponsor, or passed to an insurer and reinsurer, as SEWA does with ICICI Lombard and Swiss Re.</p>`;
+  fundIntro();
+}
+
+function niceStep(raw){
+  if(raw<=0) return 1;
+  const e=10**Math.floor(Math.log10(raw)), f=raw/e;
+  return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e;
+}
+const money=v=> v>=1000 ? "₹"+(v/1000).toLocaleString("en-IN",{maximumFractionDigits:1})+"k" : "₹"+Math.round(v);
+
+function drawHistory(p){
+  const box=$("#histchart"), W=Math.max(300,box.clientWidth), H=Math.round(Math.min(260,Math.max(180,W*0.32)));
+  const m={l:46,r:10,t:12,b:26}, ys=cal.years, n=ys.length;
+  const vals=ys.map(y=>burn(y.seq,p)), model=ys.map(y=>expectedAt(y.warming,p));
+  const vmax=Math.max(1,...vals,...model), step=niceStep(vmax/4), ymax=step*Math.ceil(vmax/step);
+  const bw=(W-m.l-m.r)/n, Y=v=>H-m.b-(v/ymax)*(H-m.t-m.b);
+  let g="";
+  for(let v=0; v<=ymax+1e-9; v+=step)
+    g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--rule)"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${money(v)}</text>`;
+  ys.forEach((y,i)=>{
+    const x=m.l+i*bw, v=vals[i];
+    if(v>0) g+=`<rect x="${(x+bw*.15).toFixed(1)}" y="${Y(v).toFixed(1)}" width="${(bw*.7).toFixed(1)}" height="${(H-m.b-Y(v)).toFixed(1)}" fill="${y.seq.includes("2")?"var(--future)":"var(--today)"}"><title>${y.year}: ${y.seq.length} ${PERILS[p.peril].events}, ${inr(v)}</title></rect>`;
+    if(y.year%10===0) g+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${y.year}</text>`;
+  });
+  const line=model.map((v,i)=>(i?"L":"M")+(m.l+i*bw+bw/2).toFixed(1)+" "+Y(v).toFixed(1)).join(" ");
+  g+=`<path d="${line}" fill="none" stroke="var(--mark)" stroke-width="2.5"/>`;
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+}
+
+function drawAep(res){
+  const box=$("#aepchart");
+  const W=Math.max(300,box.clientWidth), H=Math.round(Math.min(300,Math.max(220,W*0.42)));
+  const m={l:52,r:14,t:22,b:42};
+  const T=res.today.aep, S=res.scenario.aep;
+  const vmax=Math.max(...T.map(d=>d.loss),...S.map(d=>d.loss),1);
+  const step=niceStep(vmax/4), ymax=step*Math.ceil(vmax/step);
+  const x0=Math.log(RETURN_PERIODS[0]), x1=Math.log(RETURN_PERIODS[RETURN_PERIODS.length-1]);
+  const X=v=>m.l+(Math.log(v)-x0)/(x1-x0)*(W-m.l-m.r);
+  const Y=v=>H-m.b-(v/ymax)*(H-m.t-m.b);
+  const stepLine=a=>a.map((d,i)=>(i?`L${X(d.rp).toFixed(1)} ${Y(a[i-1].loss).toFixed(1)} `:"M")+`${X(d.rp).toFixed(1)} ${Y(d.loss).toFixed(1)}`).join(" ");
+  let g="";
+  for(let v=0; v<=ymax+1e-9; v+=step)
+    g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--rule)"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--muted)">${money(v)}</text>`;
+  for(const t of RETURN_PERIODS)
+    g+=`<text x="${X(t)}" y="${H-m.b+18}" text-anchor="${t===200?"end":t===2?"start":"middle"}" font-size="12" fill="var(--muted)">1 in ${t}</text>`;
+  g+=`<text x="${(m.l+W-m.r)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="var(--muted)">How rare the year is</text>`;
+  g+=`<path d="${stepLine(T)}" fill="none" stroke="var(--today)" stroke-width="2.5"/><path d="${stepLine(S)}" fill="none" stroke="var(--future)" stroke-width="3"/>`;
+  const t200=T[T.length-1].loss, s200=S[S.length-1].loss;
+  g+=`<text x="${X(200)-4}" y="${Y(s200)-8}" text-anchor="end" font-size="13" font-weight="700" fill="var(--future)">${inr(s200)}</text>`;
+  if(Math.abs(Y(t200)-Y(s200))>16) g+=`<text x="${X(200)-4}" y="${Y(t200)+16}" text-anchor="end" font-size="13" font-weight="700" fill="var(--muted)">${inr(t200)}</text>`;
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+}
+
+function fundIntro(){
+  const intro=$("#fund-intro");
+  if(!last){ intro.textContent=""; return; }
+  const p=last.p, S=last.res.scenario, d=PERILS[p.peril];
+  intro.textContent=`Save these terms as a fund for ${p.members.toLocaleString("en-IN")} members in ${cal.place.name}. `+
+    `Every morning at 9 it checks the weather, records ${inr(p.payout1)} per member for each ${d.event} (${inr(p.payout2)} if severe, at most ${p.cap||"any number of"} a year), `+
+    `and emails a warning when tomorrow crosses the trigger. Members get a page with pictures and a Hindi or English voice.`;
+}
+
+async function createFund(){
+  const msg=$("#fund-msg"), name=$("#groupName").value.trim();
+  if(!API_URL){ msg.className="msg err"; msg.textContent="Funds are stored on the Dihadi server."; return; }
+  if(!name){ msg.className="msg err"; msg.textContent="Give the fund a name."; $("#groupName").focus(); return; }
+  const p=last.p, S=last.res.scenario;
+  $("#createFund").disabled=true; msg.className="msg"; msg.textContent="Creating the fund…";
+  try{
+    const out=await api("/groups",{
+      name, place:cal.place, peril:p.peril, t1:cal.t1, t2:cal.t2, days:cal.days,
+      payout1:p.payout1, payout2:p.payout2, cap:p.cap, members:p.members,
+      premiumPerMember:S.gross, memberShare:p.memberShare, worstYearPayout:S.pool.worstYear,
+      pricedOn:`${cap1(SCEN[p.scenario])}, ${HOR[p.horizon]}`
+    });
+    const link=new URL("fund.html?group="+encodeURIComponent(out.id), location.href).href;
+    const mlink=new URL("member.html?group="+encodeURIComponent(out.id), location.href).href;
+    msg.innerHTML=`Fund created. <a href="${esc(link)}">Open the fund page</a> to run it, and send members <a href="${esc(mlink)}">their page</a>: pictures and a voice, no reading needed.`;
+  }catch(e){
+    msg.className="msg err"; msg.textContent="Couldn't create the fund: "+e.message;
+  }finally{ $("#createFund").disabled=false; }
+}
+
+/* wiring */
+function syncShare(){ const v=$("#memberShare").value; $("#share-out").textContent=`${v}%, sponsor ${100-v}%`; }
+let priceTimer=null;
+function schedulePrice(){ clearTimeout(priceTimer); priceTimer=setTimeout(price,120); }
+$("#controls").addEventListener("input",e=>{
+  const id=e.target.id, name=e.target.name;
+  if(id==="memberShare") syncShare();
+  if(id==="city") return;
+  if(name==="peril"){ setPeril(e.target.value,false); cal=null; $("#results").hidden=true; $("#empty").hidden=false; $("#load-msg").textContent=""; $("#trigger-hint").textContent=""; return; }
+  if(["t1","t2","days"].includes(id)) return scheduleCalibrate();
+  schedulePrice();
+});
+$("#load").addEventListener("click",loadWeather);
+$("#city").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); loadWeather(); } });
+$("#createFund").addEventListener("click",createFund);
+let rw=null;
+window.addEventListener("resize",()=>{ clearTimeout(rw); rw=setTimeout(()=>{ if(last){ drawHistory(last.p); drawAep(last.res); } },120); });
+
+setPeril("heat",false);
+syncShare();
+$("#engine").textContent = API_URL ? "" : "Weather needs the Dihadi server";
+</script>
+</body>
+</html>

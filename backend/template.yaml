@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Dihadi - climate-adjusted cover for heat and water stress, with funds and daily trigger checks
+
+Parameters:
+  AlertEmail:
+    Type: String
+    Default: ''
+    Description: Email that receives payout and forecast alerts (leave blank to skip)
+
+Conditions:
+  HasAlertEmail: !Not [!Equals [!Ref AlertEmail, '']]
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Architectures: [arm64]
+    MemorySize: 1024
+    Timeout: 30
+    CodeUri: src/
+    Environment:
+      Variables:
+        TABLE: !Ref DihadiTable
+        TOPIC_ARN: !Ref AlertTopic
+
+Resources:
+  DihadiTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - {AttributeName: pk, AttributeType: S}
+        - {AttributeName: sk, AttributeType: S}
+      KeySchema:
+        - {AttributeName: pk, KeyType: HASH}
+        - {AttributeName: sk, KeyType: RANGE}
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: Dihadi alerts
+
+  AlertSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: HasAlertEmail
+    Properties:
+      TopicArn: !Ref AlertTopic
+      Protocol: email
+      Endpoint: !Ref AlertEmail
+
+  DihadiApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: ['*']
+        AllowMethods: [GET, POST, OPTIONS]
+        AllowHeaders: [content-type]
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.handler
+      Policies:
+        - DynamoDBCrudPolicy: {TableName: !Ref DihadiTable}
+        - SNSPublishMessagePolicy: {TopicName: !GetAtt AlertTopic.TopicName}
+        - Statement:
+            - Effect: Allow
+              Action: polly:SynthesizeSpeech
+              Resource: '*'
+      Events:
+        Simulate:  {Type: HttpApi, Properties: {ApiId: !Ref DihadiApi, Path: /simulate, Method: POST}}
+        Calibrate: {Type: HttpApi, Properties: {ApiId: !Ref DihadiApi, Path: /calibrate, Method: POST}}
+        NewGroup:  {Type: HttpApi, Properties: {ApiId: !Ref DihadiApi, Path: /groups, Method: POST}}
+        GetGroup:  {Type: HttpApi, Properties: {ApiId: !Ref DihadiApi, Path: '/groups/{id}', Method: GET}}
+        Check:     {Type: HttpApi, Properties: {ApiId: !Ref DihadiApi, Path: '/groups/{id}/check', Method: POST}}
+        Member:    {Type: HttpApi, Properties: {ApiId: !Ref DihadiApi, Path: '/groups/{id}/member', Method: GET}}
+        Speech:    {Type: HttpApi, Properties: {ApiId: !Ref DihadiApi, Path: '/groups/{id}/speech', Method: GET}}
+
+  MonitorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: monitor.handler
+      Timeout: 300
+      Policies:
+        - DynamoDBCrudPolicy: {TableName: !Ref DihadiTable}
+        - SNSPublishMessagePolicy: {TopicName: !GetAtt AlertTopic.TopicName}
+      Events:
+        Morning:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: cron(0 9 * * ? *)
+            ScheduleExpressionTimezone: Asia/Kolkata
+
+Outputs:
+  ApiBase:
+    Description: Paste this into API_URL in frontend/index.html and frontend/fund.html
+    Value: !Sub https://${DihadiApi}.execute-api.${AWS::Region}.amazonaws.com
+  Table:
+    Value: !Ref DihadiTable
